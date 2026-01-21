@@ -1,10 +1,12 @@
 from mongoengine import connect
 import os
 
+MONGO_URI = os.getenv("MONGO_URI")
+
+if not MONGO_URI:
+    raise Exception("MONGO_URI not loaded from environment")
+
 connect(
     db="hrms_db",
-    host=os.getenv(
-        "MONGO_URI",
-        "mongodb+srv://HRMS-User:RADyJkjqbda7TK2X@hrms.hwrm6uj.mongodb.net/?appName=HRMS"
-    )
+    host=MONGO_URI
 )
