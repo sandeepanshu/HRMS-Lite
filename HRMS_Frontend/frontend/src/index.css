@@ -1,68 +1,140 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* src/index.css - clean, minimal professional styles */
+:root{
+  --bg:#f6f8fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#2563eb;
+  --danger:#ef4444;
+  --success:#16a34a;
+  --radius:10px;
+  --shadow: 0 6px 20px rgba(15,23,42,0.06);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:#0f172a;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-size:14px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.app {
+  max-width:1100px;
+  margin:32px auto;
+  padding:20px;
 }
 
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:20px;
+}
+.brand {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.logo {
+  height:44px;
+  width:44px;
+  background:linear-gradient(135deg,var(--accent),#7c3aed);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:700;
+  box-shadow: var(--shadow);
+}
+
+.title { font-size:18px; font-weight:700; }
+
+.grid {
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  gap:18px;
+  align-items:start;
+}
+
+/* cards */
+.card {
+  background:var(--card);
+  padding:16px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+/* dashboard cards */
+.stats {
+  display:flex;
+  gap:12px;
+  margin-bottom:12px;
+}
+.stat {
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  background:linear-gradient(180deg,#fff,#fafcff);
+  box-shadow: var(--shadow);
+}
+.stat h4{margin:0;font-size:12px;color:var(--muted)}
+.stat p{margin:6px 0 0;font-weight:700;font-size:18px}
+
+/* form */
+.form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+input[type="text"], input[type="email"], input[type="date"], select {
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #e6edf3;
+  background:#fff;
+  outline:none;
+}
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+  padding:10px 12px;
+  border-radius:8px;
+  border:0;
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
 }
-button:hover {
-  border-color: #646cff;
+button.secondary {
+  background:#64748b;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.error {color:var(--danger); margin-top:8px}
+.success {color:var(--success); margin-top:8px}
+
+.list { display:flex; flex-direction:column; gap:10px; margin-top:10px }
+.employee-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff, #f9fbff);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 10px;
+}
+.emp-left { display:flex; gap:10px; align-items:center }
+.emp-name {
+  font-weight: 600;
+  font-size: 15px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.emp-meta {
+  font-size: 13px;
+  color: #475569;
 }
+
+.small {
+  font-size: 12px;
+  color: #64748b;
+}
+.attendance-list { margin-top:10px; display:flex; flex-direction:column; gap:6px }
+.att-item{display:flex;justify-content:space-between;padding:8px;border-radius:8px;background:#fff;border:1px solid #f1f5f9}
