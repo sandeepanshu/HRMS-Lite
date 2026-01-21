@@ -5,7 +5,7 @@ from datetime import datetime
 from .models import Employee, Attendance
 from .serializers import EmployeeSerializer, AttendanceSerializer
 from .csrf import csrf_exempt_view
-
+from datetime import datetime, date, time
 
 @csrf_exempt_view
 class EmployeeListCreateAPI(APIView):
@@ -74,36 +74,38 @@ class AttendanceCreateAPI(APIView):
 
 
 @csrf_exempt_view
-
 class AttendanceListAPI(APIView):
+
     def get(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
         if not employee:
-            return Response(
-                {"message": "Employee not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"message": "Employee not found"}, status=404)
 
         records = Attendance.objects(employee=employee)
 
-        # Date filters
         from_date = request.GET.get("from")
         to_date = request.GET.get("to")
 
         if from_date:
-            records = records.filter(date__gte=datetime.fromisoformat(from_date))
+            records = records.filter(
+                date__gte=datetime.fromisoformat(from_date)
+            )
         if to_date:
-            records = records.filter(date__lte=datetime.fromisoformat(to_date))
+            records = records.filter(
+                date__lte=datetime.fromisoformat(to_date)
+            )
 
         data = [{
             "date": record.date,
             "status": record.status
         } for record in records]
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status=200)
 
 
+@csrf_exempt_view
 class PresentDaysCountAPI(APIView):
+
     def get(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
         if not employee:
@@ -111,25 +113,31 @@ class PresentDaysCountAPI(APIView):
 
         count = Attendance.objects(
             employee=employee,
-            status="Present"
+            status__iexact="present"   # ✅ FIX
         ).count()
 
-        return Response(
-            {"present_days": count},
-            status=200
-        )
+        return Response({"present_days": count}, status=200)
 
+@csrf_exempt_view
 class DashboardSummaryAPI(APIView):
+
     def get(self, request):
+        today = date.today()
+
+        start_of_day = datetime.combine(today, time.min)
+        end_of_day = datetime.combine(today, time.max)
+
         total_employees = Employee.objects.count()
         total_attendance = Attendance.objects.count()
+
         present_today = Attendance.objects(
-        date=datetime.today().date(),
-            status="Present"
+            date__gte=start_of_day,
+            date__lte=end_of_day,
+            status__iexact="present"
         ).count()
 
         return Response({
             "total_employees": total_employees,
             "total_attendance_records": total_attendance,
             "present_today": present_today
-        })
+        }, status=200)

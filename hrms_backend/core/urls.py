@@ -3,7 +3,9 @@ from .views import (
     EmployeeListCreateAPI,
     EmployeeDeleteAPI,
     AttendanceCreateAPI,
-    AttendanceListAPI
+    AttendanceListAPI,
+    PresentDaysCountAPI,
+    DashboardSummaryAPI,
 )
 
 urlpatterns = [
@@ -12,4 +14,11 @@ urlpatterns = [
 
     path("attendance/", AttendanceCreateAPI.as_view()),
     path("attendance/<str:employee_id>/", AttendanceListAPI.as_view()),
+
+    path(
+        "employees/<str:employee_id>/present-count/",
+        PresentDaysCountAPI.as_view()
+    ),
+
+    path("dashboard/summary/", DashboardSummaryAPI.as_view()),
 ]

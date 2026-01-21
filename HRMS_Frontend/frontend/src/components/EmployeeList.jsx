@@ -45,57 +45,35 @@ export default function EmployeeList({ onSelect }) {
 
       {employees.map((emp) => (
         <div key={emp.employee_id} className="employee-row">
-          {/* LEFT SECTION */}
-          <div
-            className="emp-left"
-            onClick={() => onSelect(emp)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="emp-name">{emp.full_name}</div>
-            <div className="emp-meta">
-              {emp.employee_id} · {emp.department}
-            </div>
-            <div className="small">{emp.email}</div>
-          </div>
+  {/* LEFT */}
+  <div className="emp-left" onClick={() => onSelect(emp)}>
+    <div className="emp-name">{emp.full_name}</div>
+    <div className="emp-meta">
+      {emp.employee_id} · {emp.department}
+    </div>
+    <div className="small">{emp.email}</div>
+  </div>
 
-          {/* RIGHT SECTION */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: "8px",
-              minWidth: "150px",
-            }}
-          >
-            {/* Present days */}
-            <div className="small">
-              <PresentDays employeeId={emp.employee_id} />
-            </div>
+  {/* RIGHT */}
+  <div className="emp-right">
+    <span className="small">
+      <PresentDays employeeId={emp.employee_id} />
+    </span>
 
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button
-                className="secondary"
-                onClick={() => onSelect(emp)}
-                style={{ padding: "6px 10px" }}
-              >
-                Open
-              </button>
+    <div className="emp-actions">
+      <button className="secondary" onClick={() => onSelect(emp)}>
+        Open
+      </button>
+      <button
+        className="danger"
+        onClick={() => _delete(emp.employee_id)}
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
 
-              <button
-                onClick={() => _delete(emp.employee_id)}
-                style={{
-                  padding: "6px 10px",
-                  background: "var(--danger)",
-                  color: "#fff",
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
       ))}
     </div>
   );
