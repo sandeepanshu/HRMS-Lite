@@ -1,19 +1,45 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
 
-export default function PresentDays({ employeeId }){
-  const [count, setCount] = useState(null);
+export default function PresentDays({ employeeId }) {
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(()=>{
-    if(!employeeId) return;
+  useEffect(() => {
+    if (!employeeId) return;
+
     setLoading(true);
-    API.get(`/employees/${employeeId}/present-count/`)
-      .then(res => setCount(res.data.present_days))
-      .catch(()=> setCount(0))
-      .finally(()=> setLoading(false));
-  },[employeeId]);
+    setError(false);
 
-  if(loading) return <span className="small">Loading…</span>;
-  return <span className="small">Present days: <strong>{count}</strong></span>;
+    console.log("Fetching present count for:", employeeId);
+
+    API.get(`/employees/${employeeId}/present-count/`)
+      .then((res) => {
+        console.log("Present-count response:", res.data);
+        setCount(Number(res.data.present_days) || 0);
+      })
+      .catch((err) => {
+        console.error("Present-count API error:", err);
+        setError(true);
+        setCount(0);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [employeeId]);
+
+  if (loading) {
+    return <span className="small muted">Loading…</span>;
+  }
+
+  if (error) {
+    return <span className="small muted">Present days: 0</span>;
+  }
+
+  return (
+    <span className="small">
+      Present days: <strong>{count}</strong>
+    </span>
+  );
 }
