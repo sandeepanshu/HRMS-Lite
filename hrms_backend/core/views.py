@@ -1,32 +1,24 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Employee
-from .serializers import EmployeeSerializer
+from .models import Employee, Attendance
+from .serializers import EmployeeSerializer, AttendanceSerializer
+from .csrf import csrf_exempt_view
 
 
+@csrf_exempt_view
 class EmployeeListCreateAPI(APIView):
-    """
-    GET  -> List all employees
-    POST -> Add new employee
-    """
 
     def get(self, request):
         employees = Employee.objects.all()
-
-        data = []
-        for emp in employees:
-            data.append({
-                "employee_id": emp.employee_id,
-                "full_name": emp.full_name,
-                "email": emp.email,
-                "department": emp.department,
-                "created_at": emp.created_at
-            })
+        data = [{
+            "employee_id": emp.employee_id,
+            "full_name": emp.full_name,
+            "email": emp.email,
+            "department": emp.department,
+            "created_at": emp.created_at
+        } for emp in employees]
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -43,12 +35,12 @@ class EmployeeListCreateAPI(APIView):
                 status=status.HTTP_201_CREATED
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
+
     def delete(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
 
@@ -65,14 +57,8 @@ class EmployeeDeleteAPI(APIView):
         )
 
 
-from .models import Attendance
-from .serializers import AttendanceSerializer
-
-
+@csrf_exempt_view
 class AttendanceCreateAPI(APIView):
-    """
-    POST -> Mark attendance
-    """
 
     def post(self, request):
         serializer = AttendanceSerializer(data=request.data)
@@ -84,19 +70,15 @@ class AttendanceCreateAPI(APIView):
                 status=status.HTTP_201_CREATED
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@csrf_exempt_view
 class AttendanceListAPI(APIView):
-    """
-    GET -> View attendance for an employee
-    """
 
     def get(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
+
         if not employee:
             return Response(
                 {"message": "Employee not found"},
@@ -105,11 +87,9 @@ class AttendanceListAPI(APIView):
 
         records = Attendance.objects(employee=employee)
 
-        data = []
-        for record in records:
-            data.append({
-                "date": record.date,
-                "status": record.status
-            })
+        data = [{
+            "date": record.date,
+            "status": record.status
+        } for record in records]
 
         return Response(data, status=status.HTTP_200_OK)
