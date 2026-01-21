@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Employee
+from mongoengine.errors import NotUniqueError
+
+from .models import Employee, Attendance
 
 
 class EmployeeSerializer(serializers.Serializer):
@@ -22,3 +24,31 @@ class EmployeeSerializer(serializers.Serializer):
         employee = Employee(**validated_data)
         employee.save()
         return employee
+
+
+class AttendanceSerializer(serializers.Serializer):
+    employee_id = serializers.CharField(required=True)
+    date = serializers.DateField(required=True)
+    status = serializers.ChoiceField(choices=["Present", "Absent"])
+
+    def create(self, validated_data):
+        employee_id = validated_data.pop("employee_id")
+
+        employee = Employee.objects(employee_id=employee_id).first()
+        if not employee:
+            raise serializers.ValidationError(
+                {"employee_id": "Employee not found"}
+            )
+
+        try:
+            attendance = Attendance(
+                employee=employee,
+                **validated_data
+            )
+            attendance.save()
+            return attendance
+
+        except NotUniqueError:
+            raise serializers.ValidationError(
+                {"message": "Attendance already marked for this employee on this date"}
+            )
