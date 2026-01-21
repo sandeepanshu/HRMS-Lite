@@ -75,21 +75,19 @@ class AttendanceCreateAPI(APIView):
 
 @csrf_exempt_view
 class AttendanceListAPI(APIView):
-
     def get(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
-
         if not employee:
-            return Response(
-                {"message": "Employee not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"message": "Employee not found"}, status=404)
 
+        date = request.GET.get("date")
         records = Attendance.objects(employee=employee)
 
-        data = [{
-            "date": record.date,
-            "status": record.status
-        } for record in records]
+        if date:
+            records = records.filter(date=date)
 
-        return Response(data, status=status.HTTP_200_OK)
+        data = [
+            {"date": r.date, "status": r.status}
+            for r in records
+        ]
+        return Response(data, status=200)

@@ -59,8 +59,8 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",                  # local dev
-    "https://hrms-lite-frontend.vercel.app",  # production frontend
+    "http://localhost:5173",
+    "https://hrms-lite-steel.vercel.app",
 ]
 
 ROOT_URLCONF = 'hrms_backend.urls'
