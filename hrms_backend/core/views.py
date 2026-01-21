@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from datetime import datetime
 from .models import Employee, Attendance
 from .serializers import EmployeeSerializer, AttendanceSerializer
 from .csrf import csrf_exempt_view
@@ -74,20 +74,62 @@ class AttendanceCreateAPI(APIView):
 
 
 @csrf_exempt_view
+
 class AttendanceListAPI(APIView):
+    def get(self, request, employee_id):
+        employee = Employee.objects(employee_id=employee_id).first()
+        if not employee:
+            return Response(
+                {"message": "Employee not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        records = Attendance.objects(employee=employee)
+
+        # Date filters
+        from_date = request.GET.get("from")
+        to_date = request.GET.get("to")
+
+        if from_date:
+            records = records.filter(date__gte=datetime.fromisoformat(from_date))
+        if to_date:
+            records = records.filter(date__lte=datetime.fromisoformat(to_date))
+
+        data = [{
+            "date": record.date,
+            "status": record.status
+        } for record in records]
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class PresentDaysCountAPI(APIView):
     def get(self, request, employee_id):
         employee = Employee.objects(employee_id=employee_id).first()
         if not employee:
             return Response({"message": "Employee not found"}, status=404)
 
-        date = request.GET.get("date")
-        records = Attendance.objects(employee=employee)
+        count = Attendance.objects(
+            employee=employee,
+            status="Present"
+        ).count()
 
-        if date:
-            records = records.filter(date=date)
+        return Response(
+            {"present_days": count},
+            status=200
+        )
 
-        data = [
-            {"date": r.date, "status": r.status}
-            for r in records
-        ]
-        return Response(data, status=200)
+class DashboardSummaryAPI(APIView):
+    def get(self, request):
+        total_employees = Employee.objects.count()
+        total_attendance = Attendance.objects.count()
+        present_today = Attendance.objects(
+        date=datetime.today().date(),
+            status="Present"
+        ).count()
+
+        return Response({
+            "total_employees": total_employees,
+            "total_attendance_records": total_attendance,
+            "present_today": present_today
+        })
