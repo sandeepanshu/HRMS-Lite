@@ -12,15 +12,12 @@ export default function PresentDays({ employeeId }) {
     setLoading(true);
     setError(false);
 
-    console.log("Fetching present count for:", employeeId);
 
     API.get(`/employees/${employeeId}/present-count/`)
       .then((res) => {
-        console.log("Present-count response:", res.data);
         setCount(Number(res.data.present_days) || 0);
       })
       .catch((err) => {
-        console.error("Present-count API error:", err);
         setError(true);
         setCount(0);
       })
