@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
+  baseURL: "http://127.0.0.1:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,6 +10,7 @@ const API = axios.create({
 export const getEmployees = () => API.get('/employees/');
 export const addEmployee = (data) => API.post('/employees/', data);
 export const deleteEmployee = (id) => API.delete(`/employees/${id}/`);
+export const updateEmployee = (id, data) => API.put(`/employees/${id}/update/`, data);
 export const markAttendance = (data) => API.post('/attendance/', data);
 export const getAttendance = (id) => API.get(`/attendance/${id}/`);
 

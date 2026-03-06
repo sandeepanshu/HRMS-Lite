@@ -43,6 +43,32 @@ class EmployeeListCreateAPI(APIView):
             return Response({"error": str(e), "trace": traceback.format_exc()}, status=500)
 
 @csrf_exempt_view
+class EmployeeUpdateAPI(APIView):
+    def put(self, request, employee_id):
+        try:
+            employee = Employee.objects(employee_id=employee_id).first()
+            if not employee:
+                return Response({"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            # We pass partial=True to allow updating only specific fields
+            # Note: We usually don't allow changing the employee_id itself
+            data = request.data
+            employee.full_name = data.get('full_name', employee.full_name)
+            employee.email = data.get('email', employee.email)
+            employee.department = data.get('department', employee.department)
+            
+            # Check for email uniqueness if email is changed
+            if 'email' in data and data['email'] != employee.email:
+                if Employee.objects(email=data['email']).first():
+                    return Response({"email": ["Email already exists"]}, status=400)
+
+            employee.save()
+            return Response({"message": "Employee updated successfully"}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
 
     def delete(self, request, employee_id):
@@ -57,7 +83,6 @@ class EmployeeDeleteAPI(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 @csrf_exempt_view
 class AttendanceCreateAPI(APIView):
 
@@ -71,7 +96,6 @@ class AttendanceCreateAPI(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @csrf_exempt_view
 class AttendanceListAPI(APIView):
@@ -101,7 +125,6 @@ class AttendanceListAPI(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-
 @csrf_exempt_view
 class PresentDaysCountAPI(APIView):
 
@@ -116,7 +139,6 @@ class PresentDaysCountAPI(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
 
 @csrf_exempt_view
 class DashboardSummaryAPI(APIView):
