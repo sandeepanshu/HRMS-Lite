@@ -17,7 +17,7 @@ class EmployeeListCreateAPI(APIView):
             "full_name": emp.full_name,
             "email": emp.email,
             "department": emp.department,
-            "created_at": emp.created_at
+            "created_at": emp.created_at.isoformat() if emp.created_at else None
         } for emp in employees]
 
         return Response(data, status=status.HTTP_200_OK)
@@ -26,17 +26,19 @@ class EmployeeListCreateAPI(APIView):
         serializer = EmployeeSerializer(data=request.data)
 
         if serializer.is_valid():
-            employee = serializer.save()
-            return Response(
-                {
-                    "message": "Employee created successfully",
-                    "employee_id": employee.employee_id
-                },
-                status=status.HTTP_201_CREATED
-            )
+            try:
+                employee = serializer.save()
+                return Response(
+                    {
+                        "message": "Employee created successfully",
+                        "employee_id": employee.employee_id
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
@@ -96,7 +98,7 @@ class AttendanceListAPI(APIView):
             )
 
         data = [{
-            "date": record.date,
+            "date": record.date.isoformat() if record.date else None,
             "status": record.status
         } for record in records]
 
