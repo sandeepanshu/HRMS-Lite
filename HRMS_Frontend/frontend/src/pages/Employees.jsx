@@ -39,17 +39,15 @@ const Employees = () => {
     if (loading) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin text-indigo-600" size={48} /></div>;
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">Employee Directory</h2>
-            </div>
+        <div className="w-full">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Employee Directory</h2>
 
-            {/* Add Employee Form */}
-            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8 grid grid-cols-4 gap-4">
-                <input className="border p-2 rounded" placeholder="Employee ID" required value={formData.employee_id} onChange={e => setFormData({...formData, employee_id: e.target.value})} />
-                <input className="border p-2 rounded" placeholder="Full Name" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
-                <input className="border p-2 rounded" type="email" placeholder="Email Address" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                <select className="border p-2 rounded" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required>
+            {/* Responsive Form Grid */}
+            <form onSubmit={handleSubmit} className="bg-white p-4 md:p-6 rounded-xl shadow-sm border mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <input className="border p-2 rounded w-full" placeholder="Employee ID" required value={formData.employee_id} onChange={e => setFormData({...formData, employee_id: e.target.value})} />
+                <input className="border p-2 rounded w-full" placeholder="Full Name" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} />
+                <input className="border p-2 rounded w-full" type="email" placeholder="Email Address" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                <select className="border p-2 rounded w-full" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} required>
                     <option value="">Select Dept</option>
                     <option value="Engineering">Engineering</option>
                     <option value="HR">HR</option>
@@ -60,33 +58,32 @@ const Employees = () => {
                 </button>
             </form>
 
-            {/* Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left">
+            {/* Scrollable Table for Mobile */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
+                <table className="w-full text-left min-w-[600px]">
                     <thead className="bg-gray-50 border-b">
                         <tr>
-                            <th className="p-4 font-semibold text-gray-600">ID</th>
-                            <th className="p-4 font-semibold text-gray-600">Name</th>
-                            <th className="p-4 font-semibold text-gray-600">Email</th>
-                            <th className="p-4 font-semibold text-gray-600">Department</th>
-                            <th className="p-4 font-semibold text-gray-600">Actions</th>
+                            <th className="p-4 font-semibold text-sm">ID</th>
+                            <th className="p-4 font-semibold text-sm">Name</th>
+                            <th className="p-4 font-semibold text-sm">Email</th>
+                            <th className="p-4 font-semibold text-sm">Dept</th>
+                            <th className="p-4 font-semibold text-sm">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {employees.map(emp => (
-                            <tr key={emp.employee_id} className="border-b hover:bg-gray-50">
-                                <td className="p-4 text-gray-700">{emp.employee_id}</td>
-                                <td className="p-4 font-medium">{emp.full_name}</td>
-                                <td className="p-4 text-gray-600">{emp.email}</td>
-                                <td className="p-4"><span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">{emp.department}</span></td>
+                            <tr key={emp.employee_id} className="border-b hover:bg-gray-50 transition">
+                                <td className="p-4 text-sm">{emp.employee_id}</td>
+                                <td className="p-4 text-sm font-medium">{emp.full_name}</td>
+                                <td className="p-4 text-sm text-gray-600 truncate max-w-[150px]">{emp.email}</td>
+                                <td className="p-4"><span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md text-xs">{emp.department}</span></td>
                                 <td className="p-4">
-                                    <button onClick={() => handleDelete(emp.employee_id)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                                    <button onClick={() => handleDelete(emp.employee_id)} className="text-red-500 hover:scale-110 transition"><Trash2 size={18} /></button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-                {employees.length === 0 && <div className="p-10 text-center text-gray-400">No employees registered. Add your first employee above!</div>}
             </div>
         </div>
     );

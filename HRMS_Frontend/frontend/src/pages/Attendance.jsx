@@ -35,14 +35,18 @@ const Attendance = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8">Attendance Tracking</h2>
+    <div className="w-full">
+      <h2 className="text-2xl md:text-3xl font-bold mb-6">
+        Attendance Tracking
+      </h2>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border mb-8 flex gap-4 items-end">
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border mb-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-end">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Employee</label>
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+            Employee
+          </label>
           <select
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded bg-gray-50"
             onChange={(e) => fetchRecords(e.target.value)}
           >
             <option value="">Select Employee</option>
@@ -53,47 +57,40 @@ const Attendance = () => {
             ))}
           </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Date</label>
+        <div className="flex-1">
+          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+            Date
+          </label>
           <input
             type="date"
-            className="border p-2 rounded"
+            className="w-full border p-2 rounded bg-gray-50"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
-          <select
-            className="border p-2 rounded"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="Present">Present</option>
-            <option value="Absent">Absent</option>
-          </select>
-        </div>
         <button
           onClick={handleMark}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 shadow-lg shadow-green-200 transition"
         >
           Mark Status
         </button>
       </div>
 
+      {/* Record List */}
       {selectedEmp && (
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
-          <h3 className="text-lg font-bold mb-4">Records for {selectedEmp}</h3>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
+          <h3 className="text-lg font-bold mb-4 border-b pb-2">
+            Records for {selectedEmp}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {attendanceList.map((rec, i) => (
-              <div key={i} className="flex justify-between border-b py-2">
-                <span>{rec.date}</span>
+              <div
+                key={i}
+                className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100"
+              >
+                <span className="text-sm font-medium">{rec.date}</span>
                 <span
-                  className={
-                    rec.status === "Present"
-                      ? "text-green-600 font-bold"
-                      : "text-red-500"
-                  }
+                  className={`text-xs px-2 py-1 rounded-full font-bold ${rec.status === "Present" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                 >
                   {rec.status}
                 </span>
