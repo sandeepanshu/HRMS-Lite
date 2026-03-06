@@ -11,45 +11,45 @@ class EmployeeListCreateAPI(APIView):
 
     def get(self, request):
         try:
-            employees = Employee.objects()
+            employees = Employee.objects.all()  # use .all() for clarity
 
-            data = []
-            for emp in employees:
-                data.append({
+            data = [
+                {
                     "employee_id": emp.employee_id,
                     "full_name": emp.full_name,
                     "email": emp.email,
                     "department": emp.department,
-                    "created_at": str(emp.created_at) if emp.created_at else None
-                })
+                    "created_at": str(emp.created_at) if emp.created_at else None,
+                }
+                for emp in employees
+            ]
 
             return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             import traceback
-            return Response({
-                "error": str(e),
-                "trace": traceback.format_exc()
-            }, status=500)
+            return Response(
+                {"error": str(e), "trace": traceback.format_exc()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def post(self, request):
         try:
             serializer = EmployeeSerializer(data=request.data)
-
             if serializer.is_valid():
                 employee = serializer.save()
                 return Response(
-                    {
-                        "message": "Employee created successfully",
-                        "employee_id": employee.employee_id
-                    },
-                    status=status.HTTP_201_CREATED
+                    {"message": "Employee created successfully", "employee_id": employee.employee_id},
+                    status=status.HTTP_201_CREATED,
                 )
-
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+            return Response(
+                {"error": str(e), "trace": traceback.format_exc()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 @csrf_exempt_view
@@ -58,19 +58,11 @@ class EmployeeDeleteAPI(APIView):
     def delete(self, request, employee_id):
         try:
             employee = Employee.objects(employee_id=employee_id).first()
-
             if not employee:
-                return Response(
-                    {"message": "Employee not found"},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                return Response({"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
             employee.delete()
-
-            return Response(
-                {"message": "Employee deleted successfully"},
-                status=status.HTTP_200_OK
-            )
+            return Response({"message": "Employee deleted successfully"}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -82,14 +74,9 @@ class AttendanceCreateAPI(APIView):
     def post(self, request):
         try:
             serializer = AttendanceSerializer(data=request.data)
-
             if serializer.is_valid():
                 serializer.save()
-                return Response(
-                    {"message": "Attendance marked successfully"},
-                    status=status.HTTP_201_CREATED
-                )
-
+                return Response({"message": "Attendance marked successfully"}, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
@@ -102,7 +89,6 @@ class AttendanceListAPI(APIView):
     def get(self, request, employee_id):
         try:
             employee = Employee.objects(employee_id=employee_id).first()
-
             if not employee:
                 return Response({"message": "Employee not found"}, status=404)
 
@@ -113,17 +99,13 @@ class AttendanceListAPI(APIView):
 
             if from_date:
                 records = records.filter(date__gte=datetime.fromisoformat(from_date).date())
-
             if to_date:
                 records = records.filter(date__lte=datetime.fromisoformat(to_date).date())
 
-            data = []
-            for record in records:
-                data.append({
-                    "date": record.date.isoformat() if record.date else None,
-                    "status": record.status
-                })
-
+            data = [
+                {"date": record.date.isoformat() if record.date else None, "status": record.status}
+                for record in records
+            ]
             return Response(data, status=200)
 
         except Exception as e:
@@ -136,15 +118,10 @@ class PresentDaysCountAPI(APIView):
     def get(self, request, employee_id):
         try:
             employee = Employee.objects(employee_id=employee_id).first()
-
             if not employee:
                 return Response({"message": "Employee not found"}, status=404)
 
-            count = Attendance.objects(
-                employee=employee,
-                status__iexact="present"
-            ).count()
-
+            count = Attendance.objects(employee=employee, status__iexact="present").count()
             return Response({"present_days": count}, status=200)
 
         except Exception as e:
@@ -160,17 +137,17 @@ class DashboardSummaryAPI(APIView):
 
             total_employees = Employee.objects.count()
             total_attendance = Attendance.objects.count()
+            present_today = Attendance.objects(date=today, status__iexact="present").count()
 
-            present_today = Attendance.objects(
-                date=today,
-                status__iexact="present"
-            ).count()
-
-            return Response({
-                "total_employees": total_employees,
-                "total_attendance_records": total_attendance,
-                "present_today": present_today
-            }, status=200)
+            return Response(
+                {
+                    "total_employees": total_employees,
+                    "total_attendance_records": total_attendance,
+                    "present_today": present_today,
+                },
+                status=200,
+            )
 
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            import traceback
+            return Response({"error": str(e), "trace": traceback.format_exc()}, status=500)
