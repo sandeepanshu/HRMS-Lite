@@ -26,10 +26,21 @@ class EmployeeListCreateAPI(APIView):
 
         except Exception as e:
             import traceback
-            tb = traceback.format_exc()
-            print("❌ ERROR in EmployeeListCreateAPI.get:")
-            print(tb)
-            return Response({"error": str(e), "trace": tb}, status=500)
+            return Response({"error": str(e), "trace": traceback.format_exc()}, status=500)
+
+
+    def post(self, request):
+        try:
+            serializer = EmployeeSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            import traceback
+            return Response({"error": str(e), "trace": traceback.format_exc()}, status=500)
 
 @csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
