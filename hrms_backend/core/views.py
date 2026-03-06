@@ -11,8 +11,7 @@ class EmployeeListCreateAPI(APIView):
 
     def get(self, request):
         try:
-            employees = Employee.objects.all()  # use .all() for clarity
-
+            employees = Employee.objects.all()
             data = [
                 {
                     "employee_id": emp.employee_id,
@@ -23,34 +22,14 @@ class EmployeeListCreateAPI(APIView):
                 }
                 for emp in employees
             ]
-
             return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             import traceback
-            return Response(
-                {"error": str(e), "trace": traceback.format_exc()},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    def post(self, request):
-        try:
-            serializer = EmployeeSerializer(data=request.data)
-            if serializer.is_valid():
-                employee = serializer.save()
-                return Response(
-                    {"message": "Employee created successfully", "employee_id": employee.employee_id},
-                    status=status.HTTP_201_CREATED,
-                )
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            import traceback
-            return Response(
-                {"error": str(e), "trace": traceback.format_exc()},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
+            tb = traceback.format_exc()
+            print("❌ ERROR in EmployeeListCreateAPI.get:")
+            print(tb)
+            return Response({"error": str(e), "trace": tb}, status=500)
 
 @csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
