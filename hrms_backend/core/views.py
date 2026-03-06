@@ -70,30 +70,23 @@ class EmployeeUpdateAPI(APIView):
 
 @csrf_exempt_view
 class EmployeeDeleteAPI(APIView):
-
     def delete(self, request, employee_id):
         try:
             employee = Employee.objects(employee_id=employee_id).first()
             if not employee:
-                return Response(
-                    {"message": "Employee not found"}, 
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                return Response({"message": "Employee not found"}, status=404)
 
-            Attendance.objects(employee=employee).delete()
+            Attendance.objects(employee=employee).delete() 
 
             employee.delete()
 
             return Response(
-                {"message": "Employee and their attendance history deleted successfully"}, 
+                {"message": "Employee and history deleted successfully"}, 
                 status=status.HTTP_200_OK
             )
-
         except Exception as e:
-            return Response(
-                {"error": str(e)}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=500)
+
 @csrf_exempt_view
 class AttendanceCreateAPI(APIView):
 

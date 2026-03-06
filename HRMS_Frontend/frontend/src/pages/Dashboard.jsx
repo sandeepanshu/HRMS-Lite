@@ -7,9 +7,19 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getStats()
-      .then((res) => setStats(res.data))
-      .finally(() => setLoading(false));
+    const fetchFreshStats = async () => {
+      setLoading(true);
+      try {
+        const res = await getStats();
+        setStats(res.data);
+      } catch (err) {
+        console.error("Dashboard sync error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFreshStats();
   }, []);
 
   if (loading)
