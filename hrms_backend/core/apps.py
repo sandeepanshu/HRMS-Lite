@@ -6,21 +6,19 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
+        import os
+        from mongoengine import connect
+
         MONGO_URI = os.getenv("MONGO_URI")
 
         if not MONGO_URI:
-            # Log but don't crash production
-            print("WARNING: MONGO_URI not set. MongoDB not connected.")
+            print("WARNING: MONGO_URI not set.")
             return
 
-        from mongoengine import connect
+        connect(
+            db="hrms_db",
+            host=MONGO_URI,
+            alias="default"
+        )
 
-        try:
-            connect(
-                db="hrms_db",
-                host=MONGO_URI,
-                alias="default"
-            )
-            print("MongoDB connected successfully")
-        except Exception as e:
-            print("MongoDB connection failed:", str(e))
+        print("MongoDB connected successfully")
