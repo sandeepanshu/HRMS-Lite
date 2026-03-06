@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, CalendarCheck, ShieldCheck } from 'lucide-react';
 
-const Sidebar = () => {
+
+const Sidebar = ({ closeMenu }) => {
     const menuItems = [
         { path: '/', name: 'Dashboard', icon: <LayoutDashboard size={20}/> },
         { path: '/employees', name: 'Employees', icon: <Users size={20}/> },
@@ -20,6 +21,7 @@ const Sidebar = () => {
                     <NavLink 
                         key={item.path}
                         to={item.path}
+                        onClick={closeMenu}
                         className={({ isActive }) => 
                             `flex items-center space-x-3 p-3 rounded-xl transition-all ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-gray-400 hover:bg-slate-800 hover:text-white'}`
                         }
