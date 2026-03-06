@@ -1,58 +1,43 @@
-import { useEffect, useState } from "react";
-import API from "../api/api";
-import EmployeeForm from "../components/EmployeeForm";
-import EmployeeList from "../components/EmployeeList";
-import AttendancePanel from "../components/AttendancePanel";
-import Header from "../components/Header";
-// import EmployeeForm from "../EmployeeForm";
-// import EmployeeList from "./EmployeeList";
-// import AttendancePanel from "./AttendancePanel";
+import React, { useState, useEffect } from 'react';
+import { getStats } from '../api/api';
+import { Users, CheckCircle, BarChart3, Loader2 } from 'lucide-react';
 
-export default function Dashboard() {
-  const [employees, setEmployees] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [error, setError] = useState("");
+const Dashboard = () => {
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const loadEmployees = async () => {
-    try {
-      const res = await API.get("/employees/");
-      setEmployees(res.data);
-      setError("");
-    } catch (e) {
-      setError("Failed to load employees");
-    }
-  };
+    useEffect(() => {
+        getStats().then(res => setStats(res.data)).finally(() => setLoading(false));
+    }, []);
 
-  useEffect(() => {
-    loadEmployees();
-  }, []);
+    if (loading) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin text-indigo-600" size={40} /></div>;
 
-  return (
-    <div className="container">
-      <Header />
-      <div className="card">
-        <h3>Dashboard</h3>
-        {error ? (
-          <p className="error">{error}</p>
-        ) : (
-          <p>Total Employees: <b>{employees.length}</b></p>
-        )}
-      </div>
+    const cards = [
+        { title: 'Total Employees', value: stats?.total_employees, icon: <Users />, color: 'bg-blue-500' },
+        { title: 'Attendance Records', value: stats?.total_attendance_records, icon: <BarChart3 />, color: 'bg-purple-500' },
+        { title: 'Present Today', value: stats?.present_today, icon: <CheckCircle />, color: 'bg-green-500' },
+    ];
 
-      <div className="grid">
+    return (
         <div>
-          <EmployeeForm onSuccess={loadEmployees} />
-          <EmployeeList
-            employees={employees}
-            onSelect={setSelectedEmployee}
-            onReload={loadEmployees}
-          />
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {cards.map((card, i) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                        <div className={`${card.color} p-4 rounded-xl text-white`}>{card.icon}</div>
+                        <div>
+                            <p className="text-gray-500 text-sm font-medium">{card.title}</p>
+                            <p className="text-2xl font-bold text-gray-800">{card.value}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="mt-10 bg-indigo-50 p-8 rounded-2xl border border-indigo-100">
+                <h3 className="text-indigo-900 font-bold text-lg">Quick Tip 💡</h3>
+                <p className="text-indigo-700 mt-2">Use the Employees tab to manage your staff and the Attendance tab to track daily presence.</p>
+            </div>
         </div>
+    );
+};
 
-        <div>
-          <AttendancePanel employee={selectedEmployee} />
-        </div>
-      </div>
-    </div>
-  );
-}
+export default Dashboard;
