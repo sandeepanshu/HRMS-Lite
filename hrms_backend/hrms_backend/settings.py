@@ -4,7 +4,15 @@ Django settings for hrms_backend project.
 
 from pathlib import Path
 from dotenv import load_dotenv
+from mongoengine import connect
 import os
+
+
+MONGO_URI = os.getenv("MONGO_URI")
+
+connect(
+    host=MONGO_URI
+)
 
 # --------------------------------------------------
 # BASE DIR & ENV LOADING
