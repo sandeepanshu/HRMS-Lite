@@ -11,7 +11,7 @@ class EmployeeListCreateAPI(APIView):
 
     def get(self, request):
         try:
-            employees = Employee.objects
+            employees = Employee.objects()
 
             data = []
             for emp in employees:
@@ -26,7 +26,11 @@ class EmployeeListCreateAPI(APIView):
             return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+            return Response({
+                "error": str(e),
+                "trace": traceback.format_exc()
+            }, status=500)
 
     def post(self, request):
         try:
