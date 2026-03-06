@@ -5,19 +5,18 @@ import {
   deleteEmployee,
   updateEmployee,
 } from "../api/api";
-import { Trash2, UserPlus, Loader2, Edit2, X } from "lucide-react";
+import { Trash2, UserPlus, Loader2, Edit2, X, Briefcase } from "lucide-react";
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null); // Tracks if we are editing
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     employee_id: "",
     full_name: "",
     email: "",
     department: "",
   });
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadEmployees();
@@ -27,14 +26,11 @@ const Employees = () => {
     try {
       const res = await getEmployees();
       setEmployees(res.data);
-    } catch (err) {
-      setError("Failed to load employees.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Prepare form for editing
   const handleEditClick = (emp) => {
     setEditingId(emp.employee_id);
     setFormData({
@@ -43,6 +39,25 @@ const Employees = () => {
       email: emp.email,
       department: emp.department,
     });
+  };
+
+  const handleDelete = async (id) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this employee? This will also remove their attendance history.",
+      )
+    ) {
+      try {
+        await deleteEmployee(id); 
+        alert("Employee deleted successfully!");
+        loadEmployees();
+      } catch (err) {
+        alert(
+          "Error: Could not delete employee. " +
+            (err.response?.data?.message || ""),
+        );
+      }
+    }
   };
 
   const resetForm = () => {
@@ -54,158 +69,180 @@ const Employees = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        // Update Logic
         await updateEmployee(editingId, formData);
         alert("Employee updated successfully!");
       } else {
-        // Create Logic
         await addEmployee(formData);
         alert("Employee added successfully!");
       }
       resetForm();
       loadEmployees();
     } catch (err) {
-      const msg = err.response?.data;
-      alert(
-        typeof msg === "object"
-          ? JSON.stringify(msg)
-          : "Operation failed. Check duplicate data.",
-      );
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Delete this employee?")) {
-      await deleteEmployee(id);
-      loadEmployees();
+      alert("Action failed. Ensure ID and Email are unique.");
     }
   };
 
   if (loading)
     return (
-      <div className="flex justify-center mt-20">
-        <Loader2 className="animate-spin text-indigo-600" size={48} />
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
       </div>
     );
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-          {editingId ? "Edit Employee" : "Employee Directory"}
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
+          {editingId ? "Modify Record" : "Employee Directory"}
         </h2>
         {editingId && (
           <button
             onClick={resetForm}
-            className="flex items-center text-gray-500 hover:text-gray-700"
+            className="text-rose-500 font-bold text-sm flex items-center hover:underline"
           >
-            <X size={18} className="mr-1" /> Cancel Edit
+            <X size={16} className="mr-1" /> Cancel Edit
           </button>
         )}
       </div>
 
-      {/* Responsive Form Grid */}
-      <form
-        onSubmit={handleSubmit}
-        className={`bg-white p-4 md:p-6 rounded-xl shadow-sm border mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all ${editingId ? "border-orange-300 ring-1 ring-orange-100" : "border-gray-100"}`}
+      {/* Standardized Form Grid */}
+      <div
+        className={`bg-white p-6 rounded-2xl shadow-sm border transition-all duration-300 ${editingId ? "border-amber-300 bg-amber-50/30" : "border-slate-200/60"}`}
       >
-        <input
-          className={`border p-2 rounded w-full ${editingId ? "bg-gray-100 cursor-not-allowed" : ""}`}
-          placeholder="Employee ID"
-          required
-          disabled={!!editingId} // ID cannot be changed during edit
-          value={formData.employee_id}
-          onChange={(e) =>
-            setFormData({ ...formData, employee_id: e.target.value })
-          }
-        />
-        <input
-          className="border p-2 rounded w-full"
-          placeholder="Full Name"
-          required
-          value={formData.full_name}
-          onChange={(e) =>
-            setFormData({ ...formData, full_name: e.target.value })
-          }
-        />
-        <input
-          className="border p-2 rounded w-full"
-          type="email"
-          placeholder="Email Address"
-          required
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        />
-        <select
-          className="border p-2 rounded w-full"
-          value={formData.department}
-          onChange={(e) =>
-            setFormData({ ...formData, department: e.target.value })
-          }
-          required
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
         >
-          <option value="">Select Dept</option>
-          <option value="Engineering">Engineering</option>
-          <option value="HR">HR</option>
-          <option value="Marketing">Marketing</option>
-        </select>
-        <button
-          type="submit"
-          className={`bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center justify-center space-x-2 transition hover:bg-indigo-700 ${editingId ? "bg-orange-600 hover:bg-orange-700" : ""}`}
-        >
-          {editingId ? <Edit2 size={18} /> : <UserPlus size={18} />}
-          <span>{editingId ? "Update Employee" : "Add Employee"}</span>
-        </button>
-      </form>
+          <div>
+            <label>Employee ID</label>
+            <input
+              className={editingId ? "bg-slate-200" : ""}
+              placeholder="EMP-001"
+              required
+              disabled={!!editingId}
+              value={formData.employee_id}
+              onChange={(e) =>
+                setFormData({ ...formData, employee_id: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Full Name</label>
+            <input
+              placeholder="John Doe"
+              required
+              value={formData.full_name}
+              onChange={(e) =>
+                setFormData({ ...formData, full_name: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="john@company.com"
+              required
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Department</label>
+            <select
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              required
+            >
+              <option value="">Select Dept</option>
+              <option value="Engineering">Engineering</option>
+              <option value="HR">HR</option>
+              <option value="Marketing">Marketing</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            className={`h-11 rounded-lg font-bold text-white flex items-center justify-center transition shadow-lg active:scale-95 ${editingId ? "bg-amber-600 hover:bg-amber-700" : "bg-indigo-600 hover:bg-indigo-700"}`}
+          >
+            {editingId ? (
+              <Edit2 size={18} className="mr-2" />
+            ) : (
+              <UserPlus size={18} className="mr-2" />
+            )}
+            {editingId ? "Update" : "Add Staff"}
+          </button>
+        </form>
+      </div>
 
-      {/* Scrollable Table */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-left min-w-[600px]">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="p-4 font-semibold text-sm">ID</th>
-              <th className="p-4 font-semibold text-sm">Name</th>
-              <th className="p-4 font-semibold text-sm">Email</th>
-              <th className="p-4 font-semibold text-sm">Dept</th>
-              <th className="p-4 font-semibold text-sm">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((emp) => (
-              <tr
-                key={emp.employee_id}
-                className={`border-b hover:bg-gray-50 transition ${editingId === emp.employee_id ? "bg-orange-50" : ""}`}
-              >
-                <td className="p-4 text-sm">{emp.employee_id}</td>
-                <td className="p-4 text-sm font-medium">{emp.full_name}</td>
-                <td className="p-4 text-sm text-gray-600 truncate max-w-[150px]">
-                  {emp.email}
-                </td>
-                <td className="p-4">
-                  <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-md text-xs">
-                    {emp.department}
-                  </span>
-                </td>
-                <td className="p-4 flex space-x-3">
-                  <button
-                    onClick={() => handleEditClick(emp)}
-                    className="text-blue-500 hover:scale-110 transition"
-                    title="Edit"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(emp.employee_id)}
-                    className="text-red-500 hover:scale-110 transition"
-                    title="Delete"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
+      {/* Standardized Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
+            <thead className="bg-slate-50 border-b border-slate-100">
+              <tr>
+                <th className="p-5 text-xs font-black text-slate-400 uppercase tracking-widest">
+                  Employee
+                </th>
+                <th className="p-5 text-xs font-black text-slate-400 uppercase tracking-widest">
+                  Contact
+                </th>
+                <th className="p-5 text-xs font-black text-slate-400 uppercase tracking-widest">
+                  Department
+                </th>
+                <th className="p-5 text-xs font-black text-slate-400 uppercase tracking-widest text-right">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {employees.map((emp) => (
+                <tr
+                  key={emp.employee_id}
+                  className={`hover:bg-slate-50 transition-colors ${editingId === emp.employee_id ? "bg-amber-50/50" : ""}`}
+                >
+                  <td className="p-5">
+                    <div className="font-bold text-slate-800">
+                      {emp.full_name}
+                    </div>
+                    <div className="text-xs text-slate-400 font-mono tracking-tighter">
+                      ID: {emp.employee_id}
+                    </div>
+                  </td>
+                  <td className="p-5 text-sm text-slate-600 font-medium">
+                    {emp.email}
+                  </td>
+                  <td className="p-5">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                      <Briefcase size={10} className="mr-1" /> {emp.department}
+                    </span>
+                  </td>
+                  <td className="p-5 text-right">
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => handleEditClick(emp)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                        title="Edit Record"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(emp.employee_id)}
+                        className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                        title="Delete Record"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
